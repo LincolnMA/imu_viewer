@@ -30,19 +30,23 @@ def RotMat(angs):
 def rot(line):
        angles = [float(i) for i in line.split(":")]
        R = RotMat(angles)#Rotation Matrix
+       print(x_init_vector)
+       print(y_init_vector)
+       print(z_init_vector)
+       print(R[1])
+       xn = [ np.dot(i,x_init_vector) for i in R]
+       yn = [ np.dot(i,x_init_vector) for i in R]
+       zn = [ np.dot(i,x_init_vector) for i in R]
        for i in range(0,3):
-              xn[i] = np.dot(R[i],x_vector)
-              yn[i] = np.dot(R[i],y_vector)
-              zn[i] = np.dot(R[i],z_vector)
-       xplot.set_xdata([0,xn[0]])
-       xplot.set_ydata([0,xn[1]])
-       xplot.set_zdata([0,xn[2]])
-       yplot.set_xdata([0,yn[0]])
-       yplot.set_ydata([0,yn[1]])
-       yplot.set_zdata([0,yn[2]])
-       zplot.set_xdata([0,zn[0]])
-       zplot.set_ydata([0,zn[1]])
-       zplot.set_zdata([0,zn[2]])
+              xn[i] = np.dot(R[i],x_init_vector)
+              yn[i] = np.dot(R[i],y_init_vector)
+              zn[i] = np.dot(R[i],z_init_vector)
+       print(xn)
+       print(yn)
+       print(zn)
+       xplot.set_data_3d([0,xn[0]],[0,xn[1]],[0,xn[2]])
+       yplot.set_data_3d([0,yn[0]],[0,yn[1]],[0,yn[2]])
+       zplot.set_data_3d([0,zn[0]],[0,zn[1]],[0,zn[2]])
        canvas.draw()
 
 def update():
@@ -50,12 +54,9 @@ def update():
 
 root = tk.Tk()
 
-x_vector = np.array([1,0,0])
-y_vector = np.array([0,1,0])
-z_vector = np.array([0,0,1])
-xn = x_vector
-yn = y_vector
-zn = z_vector
+x_init_vector = np.array([1,0,0])
+y_init_vector = np.array([0,1,0])
+z_init_vector = np.array([0,0,1])
 
 list_ports = ["COM2",""]
 list_baudrates = ["9600",""]
