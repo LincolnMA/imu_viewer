@@ -96,6 +96,9 @@ ax.set_zlabel("Z")
 xplot, = ax.plot([0,1], [0,0], [0,0],color = 'r')
 yplot, = ax.plot([0,0], [0,1], [0,0],color = 'b')
 zplot, = ax.plot([0,0], [0,0], [0,1],color = 'g')
+ax.set_xlim(-1,1)
+ax.set_ylim(-1,1)
+ax.set_zlim(-1,1)
 ax.set(xticklabels=[],
        yticklabels=[],
        zticklabels=[])
