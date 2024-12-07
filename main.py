@@ -5,6 +5,26 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import numpy as np
 
+def read_serial():
+       if s.is_open:
+              data = s.readline().strip().decode("utf-8",errors = "ignore")
+              print(data)
+              #data = s.readline().decode("ascii", errors="ignore")
+              #data.replace(data[-1],'')
+              #print(data + " " + str(len(data)))
+              if data.count(":") == 2: rot(data)
+              bt1.after(50,read_serial)
+def desconnect():
+       s.close()
+       bt1["fg"] = "red"
+def connect():
+       s.baudrate = int(sel2.get())
+       p = sel1.get().split(" ")
+       s.port = p[0]
+       if not s.is_open:
+              s.open()
+              bt1["fg"] = "green"
+              bt1.after(50,read_serial)
 def RotMat(angs):
        g = angs[0] #gamma
        b = angs[1] #beta
@@ -52,24 +72,27 @@ def rot(line):
 def update():
        rot(e.get())
 
+#Variáveis
 root = tk.Tk()
-
+s = ser.Serial()
 x_init_vector = np.array([1,0,0])
 y_init_vector = np.array([0,1,0])
 z_init_vector = np.array([0,0,1])
 
-list_ports = ["COM2",""]
-list_baudrates = ["9600",""]
+#Lista de opções
+ports = serial.tools.list_ports.comports()
+list_ports = [i.device + " " + str(i.manufacturer) for i in ports]
+list_baudrates = ["300","1200","2400","4800","9600","19200","38400","57600","74880","115200"]
 sel1 = tk.StringVar()
 sel1.set(list_ports[0])
 sel2 = tk.StringVar()
-sel2.set(list_baudrates[0])
-
+sel2.set(list_baudrates[4])
+#Option Bar
 option_bar = tk.Frame(root)
 op1 = tk.OptionMenu(option_bar,sel1,*list_ports)
 op2 = tk.OptionMenu(option_bar,sel2,*list_baudrates)
-bt1 = tk.Button(option_bar,text = "Connect")
-bt2 = tk.Button(option_bar,text = "Desconnect")
+bt1 = tk.Button(option_bar,text = "Connect",command = connect)
+bt2 = tk.Button(option_bar,text = "Desconnect",command = desconnect)
 ckbt1 = tk.Checkbutton(option_bar,text = "Orientation")
 ckbt2 = tk.Checkbutton(option_bar,text = "Position")
 
@@ -80,6 +103,7 @@ e.insert(0,"Pitch:Row:Yaw")
 b = tk.Button(option_bar,text = "enviar",command = update)
 b.grid(row = 6,column = 1)
 
+#Posição de Elementos
 op1.grid(row = 0,column = 0)
 op2.grid(row = 1,column = 0)
 bt1.grid(row = 2,column = 0)
