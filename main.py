@@ -21,7 +21,7 @@ def connect():
        if not s.is_open:
               s.open()
               bt1["fg"] = "green"
-              bt1.after(50,read_serial)
+              bt1.after(10,read_serial)
 def RotMat(angs):
        g = angs[0] #gamma
        b = angs[1] #beta
