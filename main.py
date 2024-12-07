@@ -9,8 +9,10 @@ def read_serial():
        if s.is_open:
               data = s.readline().strip().decode("utf-8",errors = "ignore")
               print(data)
-              if data.count(":") == 2: rot(data)
-              bt1.after(500,read_serial)
+              if data.count(":") == 2 and data.count(".") == 3: 
+                     rot(data)
+                     s.reset_input_buffer()
+              bt1.after(20,read_serial)
 def desconnect():
        s.close()
        bt1["fg"] = "red"
@@ -18,7 +20,7 @@ def connect():
        s.baudrate = int(sel2.get())
        p = sel1.get().split(" ")
        s.port = p[0]
-       s.timeout = 0
+       #s.timeout = 0
        if not s.is_open:
               s.open()
               s.reset_input_buffer()

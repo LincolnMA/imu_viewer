@@ -7,7 +7,7 @@ float g = 0,b = 0,a = 0;//gamma, beta and alpha
 float wg = 0,wb = 0,wa = 0;//angular velocity (global frame)
 float p = 0,q = 0,r = 0;//angular velocity (local frame)
 float dt,t_ref = 0;
-
+unsigned long count = 0;
 void setup() {
   Serial.begin(9600);
   Wire.begin();
@@ -71,7 +71,8 @@ void loop() {
   g = g + dt*wg;
   b = b + dt*wb;
   a = a + dt*wa;
-  if(millis()%500==0){
+  count++;
+  if(count%25==0){
     Serial.print(g);
     Serial.print(':');
     Serial.print(b);
