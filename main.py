@@ -9,9 +9,6 @@ def read_serial():
        if s.is_open:
               data = s.readline().strip().decode("utf-8",errors = "ignore")
               print(data)
-              #data = s.readline().decode("ascii", errors="ignore")
-              #data.replace(data[-1],'')
-              #print(data + " " + str(len(data)))
               if data.count(":") == 2: rot(data)
               bt1.after(50,read_serial)
 def desconnect():
