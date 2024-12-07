@@ -9,7 +9,7 @@ float p = 0,q = 0,r = 0;//angular velocity (local frame)
 float dt,t_ref = 0;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Wire.begin();
   if(!myMPU9250.init()){
     //Serial.println("MPU9250 does not respond");
@@ -71,11 +71,13 @@ void loop() {
   g = g + dt*wg;
   b = b + dt*wb;
   a = a + dt*wa;
-  Serial.print(g);
-  Serial.print(':');
-  Serial.print(b);
-  Serial.print(':');
-  Serial.println(a);
+  if(millis()%500==0){
+    Serial.print(g);
+    Serial.print(':');
+    Serial.print(b);
+    Serial.print(':');
+    Serial.println(a);
+  }
   t_ref = millis();
   //delay(10);
 }

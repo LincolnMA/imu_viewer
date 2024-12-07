@@ -10,7 +10,7 @@ def read_serial():
               data = s.readline().strip().decode("utf-8",errors = "ignore")
               print(data)
               if data.count(":") == 2: rot(data)
-              bt1.after(50,read_serial)
+              bt1.after(500,read_serial)
 def desconnect():
        s.close()
        bt1["fg"] = "red"
@@ -18,8 +18,10 @@ def connect():
        s.baudrate = int(sel2.get())
        p = sel1.get().split(" ")
        s.port = p[0]
+       s.timeout = 0
        if not s.is_open:
               s.open()
+              s.reset_input_buffer()
               bt1["fg"] = "green"
               bt1.after(10,read_serial)
 def RotMat(angs):
@@ -47,10 +49,9 @@ def RotMat(angs):
 def rot(line):
        angles = [float(i) for i in line.split(":")]
        R = RotMat(angles)#Rotation Matrix
-       print(x_init_vector)
-       print(y_init_vector)
-       print(z_init_vector)
-       print(R[1])
+       #print(x_init_vector)
+       #print(y_init_vector)
+       #print(z_init_vector)
        xn = [ np.dot(i,x_init_vector) for i in R]
        yn = [ np.dot(i,x_init_vector) for i in R]
        zn = [ np.dot(i,x_init_vector) for i in R]
@@ -58,9 +59,9 @@ def rot(line):
               xn[i] = np.dot(R[i],x_init_vector)
               yn[i] = np.dot(R[i],y_init_vector)
               zn[i] = np.dot(R[i],z_init_vector)
-       print(xn)
-       print(yn)
-       print(zn)
+       #print(xn)
+       #print(yn)
+       #print(zn)
        xplot.set_data_3d([0,xn[0]],[0,xn[1]],[0,xn[2]])
        yplot.set_data_3d([0,yn[0]],[0,yn[1]],[0,yn[2]])
        zplot.set_data_3d([0,zn[0]],[0,zn[1]],[0,zn[2]])
