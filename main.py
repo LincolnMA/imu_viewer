@@ -8,7 +8,7 @@ import numpy as np
 def data_validation(data):
        if data.count(":") != 2: return False#Verify 2 :, valid only to orientation mode 
        x = data.split(":")
-       if len(x) != 3: return False#valid only to orientation mode
+       if len(x) != 3: return False#valid only in orientation mode
        for i in x:
               try:
                      float(i)
@@ -30,12 +30,11 @@ def connect():
        s.baudrate = int(sel2.get())
        p = sel1.get().split(" ")
        s.port = p[0]
-       #s.timeout = 0
        if not s.is_open:
               s.open()
               s.reset_input_buffer()
               bt1["fg"] = "green"
-              bt1.after(10,read_serial)
+              bt1.after(10,read_serial)#bt1 choosed to use in after method
 def RotMat(angs):
        g = angs[0] #gamma
        b = angs[1] #beta
@@ -61,19 +60,16 @@ def RotMat(angs):
 def rot(line):
        angles = [float(i) for i in line.split(":")]
        R = RotMat(angles)#Rotation Matrix
-       #print(x_init_vector)
-       #print(y_init_vector)
-       #print(z_init_vector)
+
        xn = [ np.dot(i,x_init_vector) for i in R]
        yn = [ np.dot(i,x_init_vector) for i in R]
        zn = [ np.dot(i,x_init_vector) for i in R]
+
        for i in range(0,3):
               xn[i] = np.dot(R[i],x_init_vector)
               yn[i] = np.dot(R[i],y_init_vector)
               zn[i] = np.dot(R[i],z_init_vector)
-       #print(xn)
-       #print(yn)
-       #print(zn)
+
        xplot.set_data_3d([0,xn[0]],[0,xn[1]],[0,xn[2]])
        yplot.set_data_3d([0,yn[0]],[0,yn[1]],[0,yn[2]])
        zplot.set_data_3d([0,zn[0]],[0,zn[1]],[0,zn[2]])
@@ -82,19 +78,19 @@ def rot(line):
 def update():
        rot(e.get())
 
-#Variáveis
+#Var
 root = tk.Tk()
 s = ser.Serial()
 x_init_vector = np.array([1,0,0])
 y_init_vector = np.array([0,1,0])
 z_init_vector = np.array([0,0,1])
 
-#Lista de opções
+#Options to OptionMenus
 ports = serial.tools.list_ports.comports()
 list_ports = [i.device + " " + str(i.manufacturer) for i in ports]
 list_baudrates = ["300","1200","2400","4800","9600","19200","38400","57600","74880","115200"]
 sel1 = tk.StringVar()
-sel1.set(list_ports[0])
+sel1.set(list_ports[-1])
 sel2 = tk.StringVar()
 sel2.set(list_baudrates[4])
 #Option Bar
@@ -106,14 +102,14 @@ bt2 = tk.Button(option_bar,text = "Desconnect",command = desconnect)
 ckbt1 = tk.Checkbutton(option_bar,text = "Orientation")
 ckbt2 = tk.Checkbutton(option_bar,text = "Position")
 
-#Temporário
+#Temp
 e = tk.Entry(option_bar)
 e.grid(row = 6,column = 0)
 e.insert(0,"Pitch:Row:Yaw")
 b = tk.Button(option_bar,text = "enviar",command = update)
 b.grid(row = 6,column = 1)
 
-#Posição de Elementos
+#Location of gadgets
 op1.grid(row = 0,column = 0)
 op2.grid(row = 1,column = 0)
 bt1.grid(row = 2,column = 0)
@@ -121,7 +117,7 @@ bt2.grid(row = 3,column = 0)
 ckbt1.grid(row = 4,column = 0)
 ckbt2.grid(row = 5,column = 0)
 option_bar.grid(row = 0,column = 0)
-#gráficos
+#graphs
 
 fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 ax.set_xlabel("X")
