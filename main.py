@@ -5,14 +5,24 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import numpy as np
 
+def data_validation(data):
+       if data.count(":") != 2: return False#Verify 2 :, valid only to orientation mode 
+       x = data.split(":")
+       if len(x) != 3: return False#valid only to orientation mode
+       for i in x:
+              try:
+                     float(i)
+              except:
+                     return False
+       return True
 def read_serial():
        if s.is_open:
-              data = s.readline().strip().decode("utf-8",errors = "ignore")
+              data = s.readline().strip().decode("utf-8",errors = "ignore")#clear \n\r and decode to string
               print(data)
-              if data.count(":") == 2 and data.count(".") == 3: 
+              if data_validation(data): 
                      rot(data)
                      s.reset_input_buffer()
-              bt1.after(20,read_serial)
+              bt1.after(20,read_serial)#good approximation to 60 fps 
 def desconnect():
        s.close()
        bt1["fg"] = "red"
