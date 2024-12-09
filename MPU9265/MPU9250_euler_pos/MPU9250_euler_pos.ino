@@ -7,6 +7,10 @@ float g = 0,b = 0,a = 0;//gamma, beta and alpha
 float wg = 0,wb = 0,wa = 0;//angular velocity (global frame)
 float p = 0,q = 0,r = 0;//angular velocity (local frame)
 float dt,t_ref = 0;
+float gx[2] = {0,0},gy[2] = {0,0},gz[2] = {0,0};
+float vx[2] = {0,0},vy[2] = {0,0},vz[2] = {0,0};
+float dx = 0,dy = 0,dz = 0;
+float G = 9.807;
 unsigned long count = 0;
 void setup() {
   Serial.begin(9600);
@@ -49,9 +53,7 @@ void setup() {
 void loop() {
   
   xyzFloat gyr = myMPU9250.getGyrValues();
- /* float M[3][3] = {{1,sin(g)*cos(b),cos(g)*tan(b)},
-                   {0,   cos(g)    ,-sin(g)},
-                   {0,sin(g)/cos(b),cos(g)/cos(b)}};*/
+  xyzFloat gValue = myMPU9250.getGValues();
   float sa = sin(a);
   float ca = cos(a);
   float sb = sin(b);
@@ -67,17 +69,38 @@ void loop() {
   wg = M[0][0]*p + M[0][1]*q + M[0][2]*r; 
   wb = M[1][0]*p + M[1][1]*q + M[1][2]*r;
   wa = M[2][0]*p + M[2][1]*q + M[2][2]*r;
+  gx[0] = M[0][0]*gValue.x + M[0][1]*gValue.y + M[0][2]*gValue.z; 
+  gy[0] = M[1][0]*gValue.x + M[1][1]*gValue.y + M[1][2]*gValue.z;
+  gz[0] = M[2][0]*gValue.x + M[2][1]*gValue.y + M[2][2]*gValue.z - 1;//subtraindo 1G do componente z
   dt = (millis() - t_ref)/1000.0;
   g = g + dt*wg;
   b = b + dt*wb;
   a = a + dt*wa;
+  vx[0] = vx[1] + (gx[0] + gx[1])*G*dt/2;
+  vy[0] = vx[1] + (gy[0] + gy[1])*G*dt/2;
+  vz[0] = vx[1] + (gz[0] + gz[1])*G*dt/2;
+  dx = dx + (vx[0] + vx[1])*dt/2;
+  dy = dy + (vy[0] + vy[1])*dt/2;
+  dz = dz + (vz[0] + vz[1])*dt/2;
+  gx[1] = gx[0];
+  gy[1] = gy[0];
+  gz[1] = gz[0];
+  vx[1] = vx[0];
+  vy[1] = vy[0];
+  vz[1] = vz[0];
   count++;
   if(count%25==0){
     Serial.print(g);
     Serial.print(':');
     Serial.print(b);
     Serial.print(':');
-    Serial.println(a);
+    Serial.print(a);
+    Serial.print(':');
+    Serial.print(dx);
+    Serial.print(':');
+    Serial.print(dy);
+    Serial.print(':');
+    Serial.println(dz);
   }
   t_ref = millis();
   //delay(10);
