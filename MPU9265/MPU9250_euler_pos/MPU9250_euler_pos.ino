@@ -8,10 +8,13 @@ float wg = 0,wb = 0,wa = 0;//angular velocity (global frame)
 float p = 0,q = 0,r = 0;//angular velocity (local frame)
 float dt,t_ref = 0;
 float gx[2] = {0,0},gy[2] = {0,0},gz[2] = {0,0};
+float temp_gx,temp_gy,temp_gz;
 float vx[2] = {0,0},vy[2] = {0,0},vz[2] = {0,0};
 float dx = 0,dy = 0,dz = 0;
 float G = 9.807;
 unsigned long count = 0;
+int i;
+
 void setup() {
   Serial.begin(9600);
   Wire.begin();
@@ -54,6 +57,7 @@ void loop() {
   
   xyzFloat gyr = myMPU9250.getGyrValues();
   xyzFloat gValue = myMPU9250.getGValues();
+  //construção da matriz de rotação
   float sa = sin(a);
   float ca = cos(a);
   float sb = sin(b);
@@ -63,33 +67,45 @@ void loop() {
   float M[3][3] = {{ca*cb,ca*sb*sg - sa*cg,ca*sb*cg + sa*sg},
                    {sa*cb,sa*sb*sg + ca*cg,sa*sb*cg - ca*sg},
                    {-sb  ,cb*sg          ,cb*cg}};
+  //convertendo graus/s para radianos/s
   p = gyr.x*PI/180;
   q = gyr.y*PI/180;
   r = gyr.z*PI/180;
+  //multiplicando pela matriz de rotação
   wg = M[0][0]*p + M[0][1]*q + M[0][2]*r; 
   wb = M[1][0]*p + M[1][1]*q + M[1][2]*r;
   wa = M[2][0]*p + M[2][1]*q + M[2][2]*r;
-  gx[0] = M[0][0]*gValue.x + M[0][1]*gValue.y + M[0][2]*gValue.z; 
-  gy[0] = M[1][0]*gValue.x + M[1][1]*gValue.y + M[1][2]*gValue.z;
-  gz[0] = M[2][0]*gValue.x + M[2][1]*gValue.y + M[2][2]*gValue.z - 1;//subtraindo 1G do componente z
+  temp_gx = M[0][0]*gValue.x + M[0][1]*gValue.y + M[0][2]*gValue.z; 
+  temp_gy = M[1][0]*gValue.x + M[1][1]*gValue.y + M[1][2]*gValue.z;
+  temp_gz = M[2][0]*gValue.x + M[2][1]*gValue.y + M[2][2]*gValue.z - 1;//subtraindo 1G do componente z
+  gx[0] = abs(gx[0] - temp_gx) < 0.1 ? temp_gx*.8 : temp_gx;
+  gy[0] = abs(gy[0] - temp_gy) < 0.1 ? temp_gy*.8 : temp_gy;
+  gz[0] = abs(gz[0] - temp_gz) < 0.1 ? temp_gz*.8 : temp_gz;
+  //calculando período de amostragem
   dt = (millis() - t_ref)/1000.0;
+  //integral simples
   g = g + dt*wg;
   b = b + dt*wb;
   a = a + dt*wa;
+  //integral por trapézios para obtenção de velocidades
   vx[0] = vx[1] + (gx[0] + gx[1])*G*dt/2;
-  vy[0] = vx[1] + (gy[0] + gy[1])*G*dt/2;
-  vz[0] = vx[1] + (gz[0] + gz[1])*G*dt/2;
+  vy[0] = vy[1] + (gy[0] + gy[1])*G*dt/2;
+  vz[0] = vz[1] + (gz[0] + gz[1])*G*dt/2;
+  //integral por trapézios para obtenção de espaço percorrido
   dx = dx + (vx[0] + vx[1])*dt/2;
   dy = dy + (vy[0] + vy[1])*dt/2;
   dz = dz + (vz[0] + vz[1])*dt/2;
+  //atualizando valores antigos pelos novos
   gx[1] = gx[0];
   gy[1] = gy[0];
   gz[1] = gz[0];
   vx[1] = vx[0];
   vy[1] = vy[0];
   vz[1] = vz[0];
+  //controle de uso de print
   count++;
   if(count%25==0){
+    /*
     Serial.print(g);
     Serial.print(':');
     Serial.print(b);
@@ -101,7 +117,15 @@ void loop() {
     Serial.print(dy);
     Serial.print(':');
     Serial.println(dz);
+    */
+    Serial.print("gvaluex:");
+    Serial.print(gx[0]);
+    Serial.print(",");
+    Serial.print("gvaluey:");
+    Serial.print(gy[0]);
+    Serial.print(",");
+    Serial.print("gvaluez:");
+    Serial.println(gz[0]);
   }
   t_ref = millis();
-  //delay(10);
 }
