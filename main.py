@@ -15,7 +15,7 @@ def data_validation(data):
               except:
                      return False
        return True
-def read_serial():
+def read_serial(): 
        if s.is_open:
               data = s.readline().strip().decode("utf-8",errors = "ignore")#clear \n\r and decode to string
               print(data)
