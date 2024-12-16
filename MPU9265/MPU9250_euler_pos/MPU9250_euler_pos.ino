@@ -4,9 +4,12 @@
 
 MPU9250_WE myMPU9250 = MPU9250_WE(MPU9250_ADDR);
 float g = 0,b = 0,a = 0;//gamma, beta and alpha 
+float g2 = 0,b2 = 0,a2 = 0;//gamma, beta and alpha 
 float wg = 0,wb = 0,wa = 0;//angular velocity (global frame)
 float p = 0,q = 0,r = 0;//angular velocity (local frame)
-float dt,t_ref = 0;
+float dt;//delta t
+float mag_g;
+unsigned long t_ini = 0,t_fim = 0;//marcação de tempo
 float gx[2] = {0,0},gy[2] = {0,0},gz[2] = {0,0};
 float temp_gx,temp_gy,temp_gz;
 float vx[2] = {0,0},vy[2] = {0,0},vz[2] = {0,0};
@@ -57,6 +60,9 @@ void loop() {
   
   xyzFloat gyr = myMPU9250.getGyrValues();
   xyzFloat gValue = myMPU9250.getGValues();
+  //gama e beta do acelerômetro
+  g2 = atan2(-gValue.z,gValue.y);
+  b2 = atan2(gValue.y*cos(g2) - gValue.z*sin(g2),-gValue.z);
   //construção da matriz de rotação
   float sa = sin(a);
   float ca = cos(a);
@@ -82,11 +88,18 @@ void loop() {
   gy[0] = abs(gy[0] - temp_gy) < 0.1 ? temp_gy*.8 : temp_gy;
   gz[0] = abs(gz[0] - temp_gz) < 0.1 ? temp_gz*.8 : temp_gz;
   //calculando período de amostragem
-  dt = (millis() - t_ref)/1000.0;
+  t_fim = millis();f
+  dt = (t_fim - t_ini)/1000.0;
+  t_ini = t_fim;
+  //magnitude da gravidade
+  mag_g = sqrt(gValue.x*gValue.x + gValue.y*gValue.y + gValue.z*gValue.z);
   //integral simples
   g = g + dt*wg;
   b = b + dt*wb;
   a = a + dt*wa;
+  //troca de referencia
+  //g = mag_g >1.1? g : g2;
+  //b = mag_g >1.1? b : b2;
   //integral por trapézios para obtenção de velocidades
   vx[0] = vx[1] + (gx[0] + gx[1])*G*dt/2;
   vy[0] = vy[1] + (gy[0] + gy[1])*G*dt/2;
@@ -118,14 +131,17 @@ void loop() {
     Serial.print(':');
     Serial.println(dz);
     */
-    Serial.print("gvaluex:");
-    Serial.print(gx[0]);
-    Serial.print(",");
-    Serial.print("gvaluey:");
-    Serial.print(gy[0]);
-    Serial.print(",");
-    Serial.print("gvaluez:");
-    Serial.println(gz[0]);
+    //Serial.print("gravidade:");
+    //Serial.print(mag_g);
+    //Serial.print(",");
+    //Serial.print("gamma:");
+    Serial.print(g);
+    Serial.print(":");
+    //Serial.print("beta:");
+    Serial.print(b);
+    Serial.print(":");
+    //Serial.print("alpha:");
+    Serial.println(a);
+
   }
-  t_ref = millis();
 }
