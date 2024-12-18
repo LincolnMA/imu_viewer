@@ -60,9 +60,11 @@ void loop() {
   
   xyzFloat gyr = myMPU9250.getGyrValues();
   xyzFloat gValue = myMPU9250.getGValues();
+  //xyzFloat gValue = myMPU9250.getCorrectedAccRawValues();
   //gama e beta do acelerômetro
-  g2 = atan2(-gValue.z,gValue.y);
-  b2 = atan2(gValue.y*cos(g2) - gValue.z*sin(g2),-gValue.z);
+  mag_g = sqrt(gValue.x*gValue.x + gValue.y*gValue.y + gValue.z*gValue.z);
+  g2 = asin(gValue.x/mag_g);
+  b2 = atan2(gValue.y,gValue.z);
   //construção da matriz de rotação
   float sa = sin(a);
   float ca = cos(a);
@@ -88,7 +90,7 @@ void loop() {
   gy[0] = abs(gy[0] - temp_gy) < 0.1 ? temp_gy*.8 : temp_gy;
   gz[0] = abs(gz[0] - temp_gz) < 0.1 ? temp_gz*.8 : temp_gz;
   //calculando período de amostragem
-  t_fim = millis();f
+  t_fim = millis();
   dt = (t_fim - t_ini)/1000.0;
   t_ini = t_fim;
   //magnitude da gravidade
@@ -135,10 +137,10 @@ void loop() {
     //Serial.print(mag_g);
     //Serial.print(",");
     //Serial.print("gamma:");
-    Serial.print(g);
+    Serial.print(g2);
     Serial.print(":");
     //Serial.print("beta:");
-    Serial.print(b);
+    Serial.print(b2);
     Serial.print(":");
     //Serial.print("alpha:");
     Serial.println(a);
