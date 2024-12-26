@@ -3,13 +3,13 @@
 #define MPU9250_ADDR 0x68
 
 MPU9250_WE myMPU9250 = MPU9250_WE(MPU9250_ADDR);
-float g = 0,b = 0,a = 0;//gamma, beta and alpha 
+float g = 0.0,b = 0.0,a = 0.0;//gamma, beta and alpha 
 float g2 = 0,b2 = 0,a2 = 0;//gamma, beta and alpha 
 float wg = 0,wb = 0,wa = 0;//angular velocity (global frame)
 float p = 0,q = 0,r = 0;//angular velocity (local frame)
 float dt;//delta t
 float mag_g;
-unsigned long t_ini = 0,t_fim = 0;//marcação de tempo
+unsigned long t_ini = millis(),t_fim = 0.0;//marcação de tempo
 float gx[2] = {0,0},gy[2] = {0,0},gz[2] = {0,0};
 float temp_gx,temp_gy,temp_gz;
 float vx[2] = {0,0},vy[2] = {0,0},vz[2] = {0,0};
@@ -137,10 +137,10 @@ void loop() {
     //Serial.print(mag_g);
     //Serial.print(",");
     //Serial.print("gamma:");
-    Serial.print(g2);
+    Serial.print(g);
     Serial.print(":");
     //Serial.print("beta:");
-    Serial.print(b2);
+    Serial.print(b);
     Serial.print(":");
     //Serial.print("alpha:");
     Serial.println(a);
