@@ -18,8 +18,9 @@ def data_validation(data):
 def read_serial(): 
        if s.is_open:
               data = s.readline().strip().decode("utf-8",errors = "ignore")#clear \n\r and decode to string
-              print(data)
+              #print(data)
               if data_validation(data): 
+                     print(data)
                      rot(data)
                      s.reset_input_buffer()
               bt1.after(20,read_serial)#good approximation to 60 fps 
